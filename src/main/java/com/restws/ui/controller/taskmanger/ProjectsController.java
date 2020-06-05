@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,4 +71,44 @@ public class ProjectsController {
 			return null;
 		}
 	}
+	@DeleteMapping("{id}")
+	public int deleteProject(@PathVariable("id") int projectID) {
+		Project proj = cacheProjects.get(projectID);
+		if(proj !=null) {
+			cacheProjects.remove(projectID);
+			
+		}else {
+			return -1;
+		}
+		return projectID;
+		
+	}
+	
+	@GetMapping("{searchBy}/{searchText}")
+	public List<Project> search(@PathVariable("searchBy") String searchBy, @PathVariable("searchText") String text) throws ParseException{
+		List<Project> list = new ArrayList<>();
+		if(searchBy.equalsIgnoreCase("ProjectID")) {
+			Project p = cacheProjects.get(Integer.valueOf(text));
+			list.add(p);
+			return list;
+		}else if(searchBy.equalsIgnoreCase("ProjectName")) {
+			List<Project> listCache = cacheProjects.values().stream().filter(item -> item.getProjectName().contains(text))
+					.collect(Collectors.toList());
+			return listCache;
+		}else if(searchBy.equalsIgnoreCase("DateOfStart")) {
+			String date = text;
+			SimpleDateFormat dtFrmt = new SimpleDateFormat("yyyy-MM-dd");
+			Date dt = dtFrmt.parse(date);
+			List<Project> listCache = cacheProjects.values().stream().filter(item -> item.getDateOfStart().equals(dt))
+					.collect(Collectors.toList());
+			return listCache;
+		}else if(searchBy.equalsIgnoreCase("TeamSize")) {
+			List<Project> listCache = cacheProjects.values().stream().filter(item -> item.getTeamSize() == Integer.parseInt(text))
+					.collect(Collectors.toList());
+			return listCache;
+		}
+		return list;
+
+	}
+	
 }
