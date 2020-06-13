@@ -21,7 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.restws.com.restws.ui.model.taskmanager.Project;
 import com.restws.com.restws.ui.model.vo.taskmanager.ProjectVO;
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
+@CrossOrigin("http://localhost:4200")
+//@CrossOrigin
 @RestController
 @RequestMapping("api/projects")
 public class ProjectsController {
