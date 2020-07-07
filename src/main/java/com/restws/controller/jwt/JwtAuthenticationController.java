@@ -1,5 +1,8 @@
 package com.restws.controller.jwt;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -8,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,8 +44,14 @@ public class JwtAuthenticationController {
 		authenticate(authenticationRequest.getUserName(), authenticationRequest.getPassword());
 		final UserDetails userDetails = userDetailsService
 				.loadUserByUsername(authenticationRequest.getUserName());
+		
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		LoginVO userToken = new LoginVO(authenticationRequest.getUserName(), authenticationRequest.getPassword(), token);
+		List<String> roles = new ArrayList<>();
+		for(GrantedAuthority role: userDetails.getAuthorities()) {
+			roles.add(role.getAuthority());
+		}
+				
+		LoginVO userToken = new LoginVO(authenticationRequest.getUserName(), authenticationRequest.getPassword(), token, roles);
 		return ResponseEntity.ok(userToken);
 	}
 	private void authenticate(String username, String password) throws Exception {
